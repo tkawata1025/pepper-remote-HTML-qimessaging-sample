@@ -1,0 +1,90 @@
+<!DOCTYPE html>
+<html>
+<head>  
+  <meta charset="utf-8" />
+  <meta name="viewport" content="width=1280, initial-scale=1.34" />
+  <script src="/libs/qimessaging/2/qimessaging.js"></script>
+
+  <style type="text/css">  
+  <!-- 
+  body {
+    margin: 0px;
+  }
+
+  #remoteFrame {
+    width:1280px;
+    height:800px;
+    margin:0px;
+    border:0px;
+  }
+  -->
+  </style>  
+  <script type="text/javascript">
+
+    var remoteDomain = "http://ik1-309-14979.vs.sakura.ne.jp";
+    var remotePage = "/pepper/20160102/server.html";
+
+    var _remoteFrame = null;
+    var _alsession = null;
+    var _almemory = null;
+
+    function toTabletHandler(value) {
+      console.log("PepperQiMessaging/toRemoteFrameイベント発生: " + value);
+      sendMessageToRemoteContent(value);
+    }
+
+    function sendMessageToRemoteContent(data) {
+      _remoteFrame.contentWindow.postMessage(data, remoteDomain);
+    };
+
+    function receiveMessageFromRemoteContent(event) {
+
+       // 引数のオリジンの URL のチェック
+      if (event.origin !== remoteDomain) {
+         console.warn('INVALID ORIGIN');
+         return;
+      }
+
+      if (_almemory) {
+          _almemory.raiseEvent("PepperQiMessaging/fromRemoteFrame", event.data).then(function() {
+            // コールバック
+        });
+      } else {
+        _session.service("ALMemory").then(function (almemory) {
+          console.log("ALMemory取得成功");
+          _almemory = almemory;
+          ALMemory.subscriber("PepperQiMessaging/toRemoteFrame").then(function(subscriber) {
+            _almemory.raiseEvent("PepperQiMessaging/fromRemoteFrame", event.data).then(function() {
+            // コールバック
+            });
+          });
+        });
+      }
+    };
+
+    function init()
+    {
+      QiSession(function( session ) {
+        _alsession = session;
+        session.service("ALMemory").then(function (almemory) {
+          _almemory = almemory;
+          console.log("ALMemory取得成功");
+          _almemory.subscriber("PepperQiMessaging/toRemoteFrame").then(function(subscriber) {
+            subscriber.signal.connect(toTabletHandler);
+          });
+        });
+      }, null, null);
+
+      window.addEventListener('message', receiveMessageFromRemoteContent, false);
+      _remoteFrame = document.getElementById('remoteFrame');
+      _remoteFrame.src = remoteDomain + remotePage;
+    }
+  </script>
+  <title>外部サーバーコンテンツとの通信サンプル</title>
+</head>
+
+<body onLoad="init();">
+<iframe id="remoteFrame"></iframe>
+</body>
+</html>
+
