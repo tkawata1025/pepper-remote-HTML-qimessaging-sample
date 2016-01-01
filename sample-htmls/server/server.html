@@ -5,38 +5,38 @@
 
   <script type="text/javascript">
 
-  	// Pepper にメッセージを送る
+    // Pepper にメッセージを送る
     function sendMessageToPepper(message) {
       window.parent.postMessage(message, "http://198.18.0.1");
     };
 
-	function init() {
-		window.addEventListener('message', receiveMessageFromPepper, false);
-	}
+  function init() {
+    window.addEventListener('message', receiveMessageFromPepper, false);
+  }
 
-	// Pepper からのメッセージを処理する
-	function receiveMessageFromPepper(event) {
-		if (event.origin !== "http://198.18.0.1") {
-			console.warn('INVALID ORIGIN');
-			return;
-		}
+  // Pepper からのメッセージを処理する
+  function receiveMessageFromPepper(event) {
+    if (event.origin !== "http://198.18.0.1") {
+      console.warn('INVALID ORIGIN');
+      return;
+    }
 
-		// この後に処理を書く event.data が Pepper からのデータ（文字列）
-		alert(event.data); 
+    // この後に処理を書く event.data が Pepper からのデータ（文字列）
+    alert(event.data); 
 
-	};
-	</script>
+  };
+  </script>
 </head>
 <body onLoad="init();">
     <div style="font-size: 6em">
       サーバー上のコンテンツ
     </div>
     <div>
-		<form name="form1">
-			<input style="font-size: 4em" type="text" name="form1_text" value="こんにちは">
-			<button style="font-size: 4em" type="button" onclick="sendMessageToPepper(document.form1.form1_text.value);">Pepperに送る</button>
-		</form>
-	</div>
+    <form name="form1">
+      <input style="font-size: 4em" type="text" name="form1_text" value="こんにちは">
+      <button style="font-size: 4em" type="button" onclick="sendMessageToPepper(document.form1.form1_text.value);">Pepperに送る</button>
+    </form>
+  </div>
 
 </body>
 </html>
